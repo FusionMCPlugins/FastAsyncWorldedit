@@ -1,0 +1,35 @@
+# Build file created by FUSIONMC
+
+name: Build JAR
+
+on:
+  - push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Java setup
+        uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: 8
+          cache: "gradle"
+      - name: Set outputs
+        id: vars
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+      - name: Give perms
+        run: chmod 777 ./gradlew
+      - name: PRE-Build
+        run: ./gradlew setupDecompWorkspace
+      - name: Build
+        run: ./gradlew build
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: FAWE
+          path: build/libs/*
